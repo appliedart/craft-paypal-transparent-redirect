@@ -1,0 +1,67 @@
+{% extends 'paypal-transparent-redirect/_layouts' %}
+
+{% import '_includes/forms' as forms %}
+
+{% set crumbs = [
+    { label: craft.paypalTransparentRedirect.getPluginName|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect') },
+    { label: "Items"|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect/items') },
+] %}
+
+{% set selectedTab = 'items' %}
+
+{% block actionButton %}
+    <a class="btn submit add icon" href="{{ url('paypal-transparent-redirect/items/new') }}">{{ 'New item'|t('paypal-transparent-redirect') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="noitems" class="zilch{% if items %} hidden{% endif %}">
+        <p>{{ "No items exist yet."|t('paypal-transparent-redirect') }}</p>
+    </div>
+
+    {% if items|length %}
+        <table id="items" class="data fullwidth collapsible">
+            <thead>
+                <th scope="col">{{ "Name"|t('paypal-transparent-redirect') }}</th>
+                <th scope="col">{{ "Item No."|t('paypal-transparent-redirect') }}</th>
+                <th scope="col">{{ "Cost"|t('paypal-transparent-redirect') }}</th>
+                <th class="thin" colspan="3"></th>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr data-id="{{ item.id }}" data-name="{{ item.name|t('paypal-transparent-redirect') }}">
+                        <th scope="row" data-title="Name">
+                            <a href="{{ cpUrl('paypal-transparent-redirect/items/' ~ item.id) }}">{{ item.name|t('paypal-transparent-redirect') }}</a>
+                        </th>
+
+                        <td>{{ item.identifier ?? '' }}</td>
+
+                        <td>{{ item.cost ? item.cost|currency(craft.paypalTransparentRedirect.settings.currency) : '' }}</td>
+
+                        <td class="thin action">
+                            <a class="move icon" title="{{ 'Reorder'|t('feed-me') }}" role="button"></a>
+                        </td>
+
+                        <td class="thin action">
+                            <a class="delete icon" title="{{ 'Delete'|t('feed-me') }}" role="button"></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {{ parent() }}
+{% endblock %}
+
+{% js %}
+    var adminTable = new Craft.AdminTable({
+        tableSelector: '#items',
+        noObjectsSelector: '#noitems',
+        newObjectBtnSelector: '#newitemcontainer',
+        sortable: true,
+        reorderAction: 'paypal-transparent-redirect/paypal-items/reorder-items',
+        deleteAction: 'paypal-transparent-redirect/paypal-items/delete-item',
+        confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t('paypal-transparent-redirect') }}'
+    });
+{% endjs %}
+

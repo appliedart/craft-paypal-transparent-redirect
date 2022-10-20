@@ -1,0 +1,50 @@
+{
+    "name": "appliedart/paypal-transparent-redirect",
+    "description": "Basic suppsort for PayPal/Payflow Pro Transparent Redirect (SILENTTRAN).",
+    "type": "craft-plugin",
+    "version": "0.1.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "transparent redirect",
+        "paypal transparent redirect",
+        "paypal",
+        "payflow"
+    ],
+    "support": {
+        "issues": "https://github.com/appliedart/craft-paypal-transparent-redirect/issues",
+        "source": "https://github.com/appliedart/craft-paypal-transparent-redirect",
+        "docs": "https://github.com/appliedart/craft-paypal-transparent-redirect/blob/master/README.md"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Applied Art & Technology",
+            "homepage": "https://www.appliedart.com"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.7.0"
+    },
+    "require-dev": {
+      "craftcms/cms": "^3.7.0",
+      "codeception/codeception": "^3.0",
+      "vlucas/phpdotenv": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "appliedart\\paypaltransparentredirect\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "PayPal Transparent Redirect",
+        "handle": "paypal-transparent-redirect",
+        "developer": "Applied Art & Technology",
+        "developerUrl": "https://www.appliedart.com",
+        "documentationUrl": "???",
+        "changelogUrl": "???",
+        "class": "appliedart\\paypaltransparentredirect\\Plugin"
+    }
+}

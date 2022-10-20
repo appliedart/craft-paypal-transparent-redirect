@@ -1,0 +1,28 @@
+{% extends 'paypal-transparent-redirect/_layouts' %}
+
+{% set crumbs = [
+    { label: craft.feedme.getPluginName|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect') },
+    { label: "Settings"|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect/settings') },
+] %}
+
+{% set selectedTab = 'settings' %}
+{% set selectedItem = craft.app.request.getSegment(3) %}
+
+{% set navItems = {
+    'general-heading': { heading: "Settings"|t('paypal-transparent-redirect') },
+    'general': { title: "General"|t('paypal-transparent-redirect') },
+} %}
+
+{% block sidebar %}
+    <nav>
+        <ul>
+            {% for id, item in navItems %}
+                {% if item.heading is defined %}
+                    <li class="heading"><span>{{ item.heading }}</span></li>
+                {% else %}
+                    <li><a href="{{ url('paypal-transparent-redirect/settings/' ~ id) }}"{% if id == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+{% endblock %}

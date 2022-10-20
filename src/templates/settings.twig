@@ -1,0 +1,81 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * PayPal Transparent Redirect plugin for Craft CMS 3.x
+ *
+ * PayPal Transparent Redirect Settings.twig
+ *
+ * @author    Applied Art & Technology
+ * @copyright Copyright (c) 2022 Applied Art & Technology
+ * @link      https://www.appliedart.com
+ * @package   PaypalTransparentRedirect
+ * @since     0.1.0
+ */
+#}
+
+{% requireAdmin %}
+
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("appliedart\\paypaltransparentredirect\\assetbundles\\paypaltransparentredirect\\PaypalTransparentRedirectAsset") %}
+
+{{ forms.autosuggestField({
+    label: 'ISO Currency Code',
+    id: 'currency',
+    name: 'currency',
+    value: settings['currency'],
+    errors: settings.getErrors('currency'),
+    required: true,
+    suggestEnvVars: true,
+}) }}
+
+{{ forms.selectizeField({
+    label: 'Payflow Environment',
+    id: 'payflowEnvironment',
+    name: 'payflowEnvironment',
+    options: { '': 'None' }|merge(craft.paypalTransparentRedirect.payflowEnvironmentOptions()),
+    includeEnvVars: true,
+    value: settings['payflowEnvironment'],
+    required: true,
+    errors: settings.getErrors('payflowEnvironment'),
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Payflow Partner',
+    id: 'payflowPartner',
+    name: 'payflowPartner',
+    value: settings['payflowPartner'],
+    errors: settings.getErrors('payflowPartner'),
+    required: true,
+    suggestEnvVars: true,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Payflow Vendor',
+    id: 'payflowVendor',
+    name: 'payflowVendor',
+    value: settings['payflowVendor'],
+    errors: settings.getErrors('payflowVendor'),
+    required: true,
+    suggestEnvVars: true,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Payflow Username',
+    id: 'payflowUsername',
+    name: 'payflowUsername',
+    value: settings['payflowUsername'],
+    errors: settings.getErrors('payflowUsername'),
+    required: true,
+    suggestEnvVars: true,
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Payflow Password',
+    id: 'payflowPassword',
+    name: 'payflowPassword',
+    value: settings['payflowPassword'],
+    errors: settings.getErrors('payflowPassword'),
+    required: true,
+    suggestEnvVars: true,
+}) }}

@@ -1,0 +1,76 @@
+{% import '_includes/forms' as forms %}
+
+{% extends 'paypal-transparent-redirect/_layouts' %}
+
+{% do view.registerTranslations('paypal-transparent-redirect', [
+    'None',
+]) %}
+
+{% set crumbs = [
+    { label: craft.paypalTransparentRedirect.getPluginName|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect') },
+] %}
+
+{% if item.id %}
+    {% set crumbs = crumbs|merge([
+        { label: item.name|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect/items/' ~ item.id) },
+    ]) %}
+{% endif %}
+
+{% set title = (item.id) ? item.name : 'Create a new item'|t('paypal-transparent-redirect') %}
+{% set noTabs = true %}
+{% set fullPageForm = true %}
+
+{% set buttons %}
+    <div class="buttons">
+        {{ (block('actionButton') ?? '')|trim|raw }}
+    </div>
+{% endset %}
+
+{% block content %}
+	{{ actionInput('paypal-transparent-redirect/paypal-items/save-item') }}
+    {{ redirectInput(cpUrl('paypal-transparent-redirect/items')) }}
+
+    {% if item.id %}
+        {{ hiddenInput('itemId', item.id) }}
+    {% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('paypal-transparent-redirect'),
+        instructions: "What this item will be named."|t('paypal-transparent-redirect'),
+        id: 'name',
+        name: 'name',
+        value: item.name,
+        errors: item.getErrors('name'),
+        autofocus: true,
+        required: true,
+        autocomplete: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "Item No."|t('paypal-transparent-redirect'),
+        instructions: "A unique alpha-numeric string to itentify the item on PayPal transactions."|t('paypal-transparent-redirect'),
+        id: 'identifier',
+        name: 'identifier',
+        value: (item.identifier) ? item.identifier : '',
+        errors: item.getErrors('identifier'),
+        required: true,
+        autocomplete: true,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Cost'|t('paypal-transparent-redirect') ~' (' ~ craft.paypalTransparentRedirect.settings.currency|upper ~ ')',
+        instructions: "What this item will cost."|t('paypal-transparent-redirect'),
+        id: 'cost',
+        name: 'cost',
+        value: (item.cost == '0' ? '0'|number(2) : (item.cost ? item.cost|number(2) ?: '')),
+        errors: item.getErrors('cost'),
+        required: true,
+    }) }}
+
+    {{ parent() }}
+{% endblock %}
+
+{% block footerButton %}
+    {{ buttons }}
+{% endblock %}

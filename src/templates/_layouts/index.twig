@@ -1,0 +1,19 @@
+{% extends parentLayout|default('_layouts/cp') %}
+
+{% do view.registerAssetBundle('appliedart\\paypaltransparentredirect\\assetbundles\\paypaltransparentredirect\\PaypalTransparentRedirectAsset') %}
+
+{% if title is not defined %}
+    {% set title = craft.paypalTransparentRedirect.getPluginName ~ ' ' %}
+{% endif %}
+
+{% block content %}
+    {% if block('footerButton') is defined %}
+        <hr>
+
+        <div id="plugin-footer">
+            <div class="footer-left">
+                {{ block('footerButton') }}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
