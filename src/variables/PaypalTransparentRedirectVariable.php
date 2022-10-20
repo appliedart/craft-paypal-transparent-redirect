@@ -36,4 +36,5 @@ class PaypalTransparentRedirectVariable extends ServiceLocator {
     public function getSettings() {
         return Plugin::$plugin->getSettings();
     }
+
 }

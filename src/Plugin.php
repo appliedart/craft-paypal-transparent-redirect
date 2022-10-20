@@ -14,14 +14,17 @@ use appliedart\paypaltransparentredirect\variables\PaypalTransparentRedirectVari
 use appliedart\paypaltransparentredirect\twigextensions\PaypalTransparentRedirectTwigExtension;
 use appliedart\paypaltransparentredirect\models\Settings;
 use appliedart\paypaltransparentredirect\services\PaypalItems;
+use appliedart\paypaltransparentredirect\services\Payments;
 use appliedart\paypaltransparentredirect\fields\PaypalItem as PaypalItemField;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\services\Plugins;
 use craft\events\PluginEvent;
+use craft\events\RegisterTemplateRootsEvent;
 use craft\console\Application as ConsoleApplication;
 use craft\web\UrlManager;
+use craft\web\View;
 use craft\services\Fields;
 use craft\web\twig\variables\CraftVariable;
 use craft\events\RegisterComponentTypesEvent;
@@ -112,7 +115,12 @@ class Plugin extends BasePlugin {
 
         $this->setComponents([
             'items' => PaypalItems::class,
+            'payments' => Payments::class,
         ]);
+
+        Event::on(View::class, View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS, function (RegisterTemplateRootsEvent $event) {
+            $event->roots['paypal-transparent-redirect'] = __DIR__ . '/templates';
+        });
 
         // Register our site routes
         Event::on(

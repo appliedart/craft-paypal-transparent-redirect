@@ -1,0 +1,103 @@
+
+{% if debug %}
+	{# {{ dump(craft.app.request.getBodyParams()) }} #}
+{% endif %}
+
+{% if itemCost is defined and itemCost > 0.00 and secureToken is not empty %}
+	<form id="form" method="post" action="{{ payflowEndpoint }}">
+		{% for name, value in hiddenFields %}
+			{{ hiddenInput(name, value) }}
+		{% endfor %}
+
+		{{ hiddenInput('ECHODATA', 'address') }}
+		{{ hiddenInput('ECHODATA', 'custdata') }}
+		{{ hiddenInput('ECHODATA', 'user') }}
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h2><i class="icon icon-credit-card"></i>
+					Payment <span>Information</span>
+				</h2>
+			</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="payflow-card-number">Card Number *</label>
+							<input type="text" id="payflow-card-number" name="ACCT" class="form-control" maxlength="16" required value="{{ paymentInputDefaults.ACCT }}" autocomplete="off"/>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group">
+							<label for="payflow-card-expire">Card Expiry (MMYY) <span class="req">*</span></label>
+							<input type="text" id="payflow-card-expire" name="EXPDATE" maxlength="4" class="form-control" required value="{{ paymentInputDefaults.EXPDATE }}" autocomplete="off"/>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group">
+							<label for="payflow-cvv2">CCV Number <span class="req">*</span></label>
+							<input type="text" id="payflow-cvv2" name="CVV2" class="form-control" required value="{{ paymentInputDefaults.CVV2 }}"/>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="payflow-billto-fname">First Name <span class="req">*</span></label>
+							<input type="text" id="payflow-billto-fname" name="BILLTOFIRSTNAME" class="form-control" required value="{{ paymentInputDefaults.BILLTOFIRSTNAME }}"/>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="payflow-billto-lname">Last Name <span class="req">*</span></label>
+							<input type="text" id="payflow-billto-lname" name="BILLTOLASTNAME" class="form-control" required value="{{ paymentInputDefaults.BILLTOLASTNAME }}"/>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="payflow-billto-street">Address <span class="req">*</span></label>
+					<input type="text" id="payflow-billto-street" name="BILLTOSTREET" class="form-control" required value="{{ paymentInputDefaults.BILLTOSTREET }}"/>
+				</div>
+				<div class="form-group">
+					<label for="payflow-billto-street2">Address 2</label>
+					<input type="text" id="payflow-billto-street2" name="BILLTOSTREET2" class="form-control" value="{{ paymentInputDefaults.BILLTOSTREET2 }}"/>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="payflow-billto-CITY">City <span class="req">*</span></label>
+							<input type="text" id="payflow-billto-CITY" name="BILLTOCITY" class="form-control" value="{{ paymentInputDefaults.BILLTOCITY }}"/>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="payflow-billto-state">State <span class="req">*</span></label>
+							<input type="text" id="payflow-billto-state" name="BILLTOSTATE" class="form-control" maxlength="2" value="{{ paymentInputDefaults.BILLTOSTATE }}"/>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="payflow-billto-zip">Zipcode/Postcode <span class="req">*</span></label>
+							<input type="text" id="payflow-billto-zip" name="BILLTOZIP" class="form-control" value="{{ paymentInputDefaults.BILLTOZIP }}"/>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="payflow-billto-email">Email <span class="req">*</span></label>
+							<input type="email" id="payflow-billto-email" name="BILLTOEMAIL" class="form-control" required value="{{ paymentInputDefaults.BILLTOEMAIL }}"/>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label for="payflow-billto-phone">Phone Number <span class="req">*</span></label>
+							<input type="text" id="payflow-billto-phone" name="BILLTOPHONENUM" class="form-control" required value="{{ paymentInputDefaults.BILLTOPHONENUM }}"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<input class="btn btn-primary btn-fill btn-lg" type="submit" value="Submit" id="catwebformbutton">
+	</form>
+{% endif %}

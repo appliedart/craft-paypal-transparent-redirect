@@ -2,7 +2,7 @@
     "name": "appliedart/paypal-transparent-redirect",
     "description": "Basic suppsort for PayPal/Payflow Pro Transparent Redirect (SILENTTRAN).",
     "type": "craft-plugin",
-    "version": "0.1.4",
+    "version": "0.2.0",
     "keywords": [
         "craft",
         "cms",
