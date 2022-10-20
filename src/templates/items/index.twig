@@ -35,7 +35,7 @@
 
                         <td>{{ item.identifier ?? '' }}</td>
 
-                        <td>{{ item.cost ? item.cost|currency(craft.paypalTransparentRedirect.settings.currency) : '' }}</td>
+                        <td>{{ item.cost ? item.cost|currency(craft.paypalTransparentRedirect.settings.getCurrency()) : '' }}</td>
 
                         <td class="thin action">
                             <a class="move icon" title="{{ 'Reorder'|t('feed-me') }}" role="button"></a>

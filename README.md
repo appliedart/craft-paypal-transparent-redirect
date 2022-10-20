@@ -6,7 +6,7 @@ Basic support for PayPal/Payflow Pro Transparent Redirect (SILENTTRAN).
 
 ## Requirements
 
-This plugin requires Craft CMS 3.0.0-beta.23 or later.
+This plugin requires Craft CMS 3.7.0 or later.
 
 ## Installation
 
@@ -18,7 +18,7 @@ To install the plugin, follow these instructions.
 
 2. Then tell Composer to load the plugin:
 
-        composer require /paypal-transparent-redirect
+        composer require appliedart/paypal-transparent-redirect
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for PayPal Transparent Redirect.
 

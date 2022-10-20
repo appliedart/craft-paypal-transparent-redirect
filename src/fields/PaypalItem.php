@@ -96,7 +96,7 @@ class PaypalItem extends BaseOptionsField {
         $this->_items = Plugin::$plugin->items->getItems();
         $this->_itemIds = Plugin::$plugin->items->getItemIds();
 
-        $currency = Plugin::$plugin->settings->currency;
+        $currency = Plugin::$plugin->settings->getCurrency();
 
         foreach ($this->_items as $item) {
             $this->options[$item->id] = $item->name . ' [' . $item->identifier . ']';

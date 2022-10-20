@@ -13,6 +13,7 @@ namespace appliedart\paypaltransparentredirect\models;
 use appliedart\paypaltransparentredirect\Plugin;
 
 use Craft;
+use craft\helpers\App;
 use craft\base\Model;
 use craft\behaviors\EnvAttributeParserBehavior;
 
@@ -30,8 +31,7 @@ use craft\behaviors\EnvAttributeParserBehavior;
  * @package   PaypalTransparentRedirect
  * @since     0.1.0
  */
-class Settings extends Model
-{
+class Settings extends Model {
     // Public Properties
     // =========================================================================
 
@@ -47,12 +47,36 @@ class Settings extends Model
      *
      * @var string
      */
-    public $currency = 'USD';
-    public $payflowEnvironment = NULL;
-    public $payflowPartner = NULL;
-    public $payflowVendor = NULL;
-    public $payflowUsername = NULL;
-    public $payflowPassword = NULL;
+    public $currency;
+    public $payflowEnvironment;
+    public $payflowPartner;
+    public $payflowVendor;
+    public $payflowUsername;
+    public $payflowPassword;
+
+    public function getCurrency(): string {
+        return App::parseEnv($this->currency);
+    }
+
+    public function getPayflowEnvironment(): string {
+        return App::parseEnv($this->payflowEnvironment);
+    }
+
+    public function getPayflowPartner(): string {
+        return App::parseEnv($this->payflowPartner);
+    }
+
+    public function getPayflowVendor(): string {
+        return App::parseEnv($this->payflowVendor);
+    }
+
+    public function getPayflowUsername(): string {
+        return App::parseEnv($this->payflowUsername);
+    }
+
+    public function getPayflowPassword(): string {
+        return App::parseEnv($this->payflowPassword);
+    }
 
     public function behaviors() {
         $behaviors = parent::behaviors();
