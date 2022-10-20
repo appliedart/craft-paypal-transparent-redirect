@@ -63,7 +63,7 @@
         instructions: "What this item will cost."|t('paypal-transparent-redirect'),
         id: 'cost',
         name: 'cost',
-        value: (item.cost == '0' ? '0'|number : (item.cost ? item.cost|number ?: '')),
+        value: (item.cost == '0' ? '0'|number(2, {}) : (item.cost ? item.cost|number(2, {}) ?: '')),
         errors: item.getErrors('cost'),
         required: true,
     }) }}

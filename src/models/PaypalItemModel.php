@@ -64,14 +64,28 @@ class PaypalItemModel extends Model {
     public function rules() {
         return [
             [['name', 'identifier'], 'string'],
-            [['cost'], 'number'],
             [['cost'], 'default', 'value' => 0.00],
+            [['cost'], 'filter', 'filter' => [$this, 'sanitizeInput']],
+            [['cost'], 'number'],
             [['name', 'identifier', 'name'], 'required'],
             [['identifier'], 'unique', 'targetClass' => PaypalItemRecord::class, 'filter' => function ($query) {
                 if ($this->identifier !== null) {
                     $query->andWhere('`identifier` = :identifier', ['identifier' => $this->identifier]);
+
+                    if ($this->id) {
+                        $query->andWhere('`id` != :id', ['id' => $this->id]);
+                    }
                 }
             }]
         ];
+    }
+
+    public function sanitizeInput($value) {
+        $value = trim($value);
+        $value = stripslashes($value);
+        $value = htmlspecialchars($value);
+        $value = preg_replace('/[$,]/', '', $value);
+
+        return $value;
     }
 }
