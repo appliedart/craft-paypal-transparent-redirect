@@ -143,13 +143,13 @@ class PaypalItems extends Component {
         $record->identifier = trim($model->identifier);
         $record->cost = trim($model->cost);
 
-        /* if ($isNewModel) {
+        if ($isNewModel) {
             $maxSortOrder = (new Query())
                 ->from(['{{%paypaltransparentredirect_item}}'])
                 ->max('[[sortOrder]]');
 
             $record->sortOrder = $maxSortOrder ? $maxSortOrder + 1 : 1;
-        } */
+        }
 
         $record->save(false);
 
@@ -222,12 +222,12 @@ class PaypalItems extends Component {
                 'identifier',
                 'cost',
                 // 'siteId',
-                // 'sortOrder',
+                'sortOrder',
                 'dateCreated',
                 'dateUpdated',
                 'uid',
             ])
-            ->orderBy(['cost' => SORT_ASC, 'identifier' => SORT_ASC, 'name' => SORT_ASC, 'dateCreated' => SORT_DESC, 'id' => SORT_ASC]);
+            ->orderBy(['sortOrder' => SORT_ASC, 'cost' => SORT_ASC, 'identifier' => SORT_ASC, 'name' => SORT_ASC, 'dateCreated' => SORT_DESC, 'id' => SORT_ASC]);
     }
 
     /**

@@ -14,6 +14,7 @@ use appliedart\paypaltransparentredirect\Plugin;
 use appliedart\paypaltransparentredirect\models\PaypalItemModel;
 use appliedart\paypaltransparentredirect\assetbundles\paypaltransparentredirectfieldfield\PaypalTransparentRedirectFieldFieldAsset;
 
+use NumberFormatter;
 use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
@@ -43,6 +44,7 @@ class PaypalItem extends BaseOptionsField {
 
     public $someAttribute;
     public $options;
+    protected $formatter;
     protected $multi = false;
     protected $_items = [];
     protected $_itemIds = [];
@@ -61,6 +63,8 @@ class PaypalItem extends BaseOptionsField {
 
 
     public function init() {
+        $this->formatter = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+
         parent::init();
     }
 
@@ -92,8 +96,14 @@ class PaypalItem extends BaseOptionsField {
         $this->_items = Plugin::$plugin->items->getItems();
         $this->_itemIds = Plugin::$plugin->items->getItemIds();
 
+        $currency = Plugin::$plugin->settings->currency;
+
         foreach ($this->_items as $item) {
             $this->options[$item->id] = $item->name . ' [' . $item->identifier . ']';
+
+            if ($currency && $item->cost && $item->cost > 0) {
+                $this->options[$item->id] .= ' - ' . $this->formatter->formatCurrency($item->cost, $currency);
+            }
         }
 
         return $this->options;

@@ -94,7 +94,7 @@ class PaypalItemsController extends Controller {
 
         $itemIds = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         $itemIds = array_filter($itemIds);
-        Plugin::$plugin->getItems()->reorderItems($itemIds);
+        Plugin::$plugin->items->reorderItems($itemIds);
 
         return $this->asJson(['success' => true]);
     }
