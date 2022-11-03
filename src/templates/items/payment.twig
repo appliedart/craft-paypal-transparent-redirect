@@ -54,6 +54,28 @@
 						</div>
 					</div>
 				</div>
+				{% set countries = craft.paypalTransparentRedirect.payments.getCountryList() %}
+				<div class="form-group">
+					<label for="payflow-billto-street">Country <span class="req">*</span></label>
+					{% set hasCountry = paymentInputDefaults and paymentInputDefaults.BILLTOCOUNTRY and paymentInputDefaults.BILLTOCOUNTRY is not empty %}
+					<select id="payflow-billto-street" name="BILLTOCOUNTRY" class="form-control" data-state-list="payflow-billto-state">
+						{% for country in countries %}
+							{% if country.numericCode is not empty %}
+								{% set selected = '' %}
+
+								{% if hasCountry and paymentInputDefaults.BILLTOCOUNTRY == country.numericCode %}
+									{% set selected = 'selected' %}
+								{% elseif hasCountry and paymentInputDefaults.BILLTOCOUNTRY == country.countryCode %}
+									{% set selected = 'selected' %}
+								{% elseif country.countryCode == 'US' and not hasCountry ? 'selected' : '' %}
+									{% set selected = 'selected' %}
+								{% endif %}
+
+								<option value="{{ country.numericCode }}" data-country-code="{{ country.countryCode }}" {{ selected }}>{{ country.name }}</option>
+							{% endif %}
+						{% endfor %}
+					</select>
+				</div>
 				<div class="form-group">
 					<label for="payflow-billto-street">Address <span class="req">*</span></label>
 					<input type="text" id="payflow-billto-street" name="BILLTOSTREET" class="form-control" required value="{{ paymentInputDefaults.BILLTOSTREET }}"/>

@@ -15,7 +15,9 @@ use appliedart\paypaltransparentredirect\twigextensions\PaypalTransparentRedirec
 use appliedart\paypaltransparentredirect\models\Settings;
 use appliedart\paypaltransparentredirect\services\PaypalItems;
 use appliedart\paypaltransparentredirect\services\Payments;
+use appliedart\paypaltransparentredirect\services\TransactionResponses;
 use appliedart\paypaltransparentredirect\fields\PaypalItem as PaypalItemField;
+use appliedart\paypaltransparentredirect\fields\TransactionResponse as TransactionResponseField;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
@@ -47,6 +49,7 @@ use yii\base\Event;
  * @since     0.1.0
  *
  * @property-read PayPalItems $items
+ * @property-read TransactionResponses $transactions
  * @property-read mixed $cpNavItem
  * @property-read Settings $settings
  * @method Settings getSettings()
@@ -71,7 +74,7 @@ class Plugin extends BasePlugin {
      *
      * @var string
      */
-    public $schemaVersion = '0.1.3';
+    public $schemaVersion = '0.2.3';
 
     /**
      * Set to `true` if the plugin should have a settings view in the control panel.
@@ -116,6 +119,7 @@ class Plugin extends BasePlugin {
         $this->setComponents([
             'items' => PaypalItems::class,
             'payments' => Payments::class,
+            'transactions' => TransactionResponses::class,
         ]);
 
         Event::on(View::class, View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS, function (RegisterTemplateRootsEvent $event) {
@@ -140,6 +144,8 @@ class Plugin extends BasePlugin {
                     'paypal-transparent-redirect/items' => 'paypal-transparent-redirect/paypal-items/items-index',
                     'paypal-transparent-redirect/items/new' => 'paypal-transparent-redirect/paypal-items/edit-item',
                     'paypal-transparent-redirect/items/<itemId:\d+>' => 'paypal-transparent-redirect/paypal-items/edit-item',
+                    'paypal-transparent-redirect/responses' => 'paypal-transparent-redirect/transaction-response/response-index',
+                    'paypal-transparent-redirect/responses/<responseId:\d+>' => 'paypal-transparent-redirect/transaction-response/view-response',
                 ]);
             }
         );
@@ -150,6 +156,7 @@ class Plugin extends BasePlugin {
             Fields::EVENT_REGISTER_FIELD_TYPES,
             function (RegisterComponentTypesEvent $event) {
                 $event->types[] = PaypalItemField::class;
+                $event->types[] = TransactionResponseField::class;
             }
         );
 

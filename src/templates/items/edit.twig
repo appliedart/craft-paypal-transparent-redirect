@@ -37,7 +37,7 @@
     {{ forms.textField({
         first: true,
         label: "Name"|t('paypal-transparent-redirect'),
-        instructions: "What this item will be named."|t('paypal-transparent-redirect'),
+        instructions: "What this item will be named.",
         id: 'name',
         name: 'name',
         value: item.name,
@@ -49,7 +49,7 @@
 
     {{ forms.textField({
         label: "Item No."|t('paypal-transparent-redirect'),
-        instructions: "A unique alpha-numeric string to itentify the item on PayPal transactions."|t('paypal-transparent-redirect'),
+        instructions: "A unique alpha-numeric string to itentify the item on PayPal transactions.",
         id: 'identifier',
         name: 'identifier',
         value: (item.identifier) ? item.identifier : '',
@@ -60,11 +60,21 @@
 
     {{ forms.textField({
         label: 'Cost'|t('paypal-transparent-redirect') ~' (' ~ craft.paypalTransparentRedirect.settings.getCurrency()|upper ~ ')',
-        instructions: "What this item will cost."|t('paypal-transparent-redirect'),
+        instructions: "What this item will cost.",
         id: 'cost',
         name: 'cost',
         value: (item.cost == '0' ? '0'|number(2, {}) : (item.cost ? item.cost|number(2, {}) ?: '')),
         errors: item.getErrors('cost'),
+        required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Gratis Count'|t('paypal-transparent-redirect'),
+        instructions: "Number of additional free memberships.",
+        id: 'gratisCount',
+        name: 'gratisCount',
+        value: item.gratisCount,
+        errors: item.getErrors('gratisCount'),
         required: true,
     }) }}
 

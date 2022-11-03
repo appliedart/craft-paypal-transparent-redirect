@@ -1,0 +1,72 @@
+{% import '_includes/forms' as forms %}
+
+{% extends 'paypal-transparent-redirect/_layouts' %}
+
+{% do view.registerTranslations('paypal-transparent-redirect', [
+    'None',
+]) %}
+
+{% set crumbs = [
+    { label: craft.paypalTransparentRedirect.getPluginName|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect') },
+] %}
+
+{% if response.id %}
+    {% set crumbs = crumbs|merge([
+        { label: 'Transaction Responses'|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect/responses') },
+    ]) %}
+{% endif %}
+
+{% set title = (response.id) ? 'Transaction Response'|t('paypal-transparent-redirect') : null %}
+{% set noTabs = true %}
+{% set fullPageForm = true %}
+
+{% if title is null %}
+    {% redirect url('paypal-transparent-redirect/responses') %}
+{% endif %}
+
+{% block actionButton %}
+{% endblock %}
+
+{% block content %}
+    {% set fieldNames = craft.paypalTransparentRedirect.transactions.getResponseFieldNames() %}
+
+    <table class="data fullwidth collapsible">
+        <thead>
+            <th scope="col">{{ "Field"|t('paypal-transparent-redirect') }}</th>
+            <th scope="col">{{ "Value"|t('paypal-transparent-redirect') }}</th>
+        </thead>
+        <tbody>
+            {% for fieldName in fieldNames %}
+                {% if response[fieldName] is not empty %}
+                    <tr>
+                        <td>{{ fieldName }}</td>
+                        <td>
+                            {% switch fieldName %}
+                                {% case 'PNREF' %}
+                                    {% set paypalUrl = response[fieldName] is empty ? null : 'https://manager.paypal.com/searchTranx.do?subaction=transDetails&id=' ~ response[fieldName] %}
+                                    {% if paypalUrl %}
+                                        <a href="{{ paypalUrl }}" target="_blank">{{ response[fieldName] }}&nbsp;<span data-icon="external"></span></a>
+                                    {% endif %}
+                                {% case 'AMT' %}
+                                    {{ response[fieldName]|currency(craft.paypalTransparentRedirect.settings.getCurrency()) }}
+                                {% case 'TRANSTIME' %}
+                                    {{ response[fieldName]|date('m/d/Y @ h:i:s a') }}
+                                {% case 'COUNTRY' %}
+                                    {{ craft.paypalTransparentRedirect.payments.getCountryByNumericCode(response[fieldName])|default(response[fieldName]) }}
+                                {% case 'BILLTOCOUNTRY' %}
+                                    {{ craft.paypalTransparentRedirect.payments.getCountryByNumericCode(response[fieldName])|default(response[fieldName]) }}
+                                {% case 'SHIPTOCOUNTRY' %}
+                                    {{ craft.paypalTransparentRedirect.payments.getCountryByNumericCode(response[fieldName])|default(response[fieldName]) }}
+                                {% default %}
+                                    {{ response[fieldName] }}
+                            {% endswitch %}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    {{ parent() }}
+{% endblock %}

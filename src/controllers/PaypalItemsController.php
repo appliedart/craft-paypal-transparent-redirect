@@ -135,8 +135,7 @@ class PaypalItemsController extends Controller {
      * @return PaypalItemModel
      * @throws \yii\web\BadRequestHttpException
      */
-    private function _getModelFromPost()
-    {
+    protected function _getModelFromPost() {
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
@@ -150,6 +149,7 @@ class PaypalItemsController extends Controller {
         $item->name = $request->getBodyParam('name', $item->name);
         $item->identifier = $request->getBodyParam('identifier', $item->identifier);
         $item->cost = $request->getBodyParam('cost', $item->cost);
+        $item->gratisCount = $request->getBodyParam('gratisCount', $item->gratisCount);
         // $item->siteId = $request->getBodyParam('siteId', $item->siteId);
 
         return $item;

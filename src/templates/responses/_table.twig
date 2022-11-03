@@ -1,0 +1,39 @@
+    <div id="noitems" class="zilch{% if responses %} hidden{% endif %}">
+        <p>{{ "No responses exist yet."|t('paypal-transparent-redirect') }}</p>
+    </div>
+
+    {% if responses|length %}
+        <table id="responses" class="data fullwidth collapsible">
+            <thead>
+                <th scope="col">{{ "Transaction ID"|t('paypal-transparent-redirect') }}</th>
+                <th scope="col">{{ "Response Message"|t('paypal-transparent-redirect') }}</th>
+                <th scope="col">{{ "Amount"|t('paypal-transparent-redirect') }}</th>
+                <th scope="col">{{ "Token ID"|t('paypal-transparent-redirect') }}</th>
+                <th scope="col">{{ "Timestamp"|t('paypal-transparent-redirect') }}</th>
+                <th class="thin" colspan="1"></th>
+            </thead>
+            <tbody>
+                {% for response in responses %}
+                    {% set paypalUrl = response.PNREF is defined and response.PNREF is not empty ? 'https://manager.paypal.com/searchTranx.do?subaction=transDetails&id=' ~ response.PNREF : null %}
+                    <tr data-id="{{ response.id }}" data-name="{{ response.PNREF|t('paypal-transparent-redirect') }}">
+                        <th scope="row" data-title="Name">
+                            <a href="{{ cpUrl('paypal-transparent-redirect/responses/' ~ response.id) }}">{{ response.PNREF|t('paypal-transparent-redirect') }}</a>
+                        </th>
+
+                        <td>{{ response.RESPMSG }}</td>
+
+                        <td>{{ response.AMT is defined ? response.AMT|currency(craft.paypalTransparentRedirect.settings.getCurrency()) : null }}</td>
+
+                        <td>{{ response.SECURETOKENID }}</td>
+
+                        <td>{{ response.TRANSTIME|date('m/d/Y @ h:i a') }}</td>
+
+                        <td class="thin action">
+                            {% if paypalUrl %}
+                                <a href="{{ paypalUrl }}" class="external icon" data-icon="external" role="button" target="_blank"></a></td>
+                            {% endif %}
+                        </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}

@@ -11,6 +11,7 @@
 namespace appliedart\paypaltransparentredirect\migrations;
 
 use appliedart\paypaltransparentredirect\Plugin;
+use appliedart\paypaltransparentredirect\services\TransactionResponses;
 
 use Craft;
 use craft\config\DbConfig;
@@ -91,30 +92,84 @@ class Install extends Migration {
      * @return bool
      */
     protected function createTables() {
-        $tablesCreated = false;
-
         // $this->removeTables();
+
+        $tablesCreated = (self::createItemsTable($this) && self::createTrxTable($this));
+
+        return $tablesCreated;
+    }
+
+    protected static function getTrxFields($self) {
+        $fieldNames = TransactionResponses::getResponseFieldNames();
+
+        $fields = [];
+
+        foreach($fieldNames as $fieldName) {
+            $fields[$fieldName] = $self->string(112)->null();
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Creates the tables needed for the Records used by the plugin
+     *
+     * @return bool
+     */
+    public static function createTrxTable($self) {
+        $tableCreated = false;
+
+        // paypaltransparentredirect_item table
+        $tableSchema = Craft::$app->db->schema->getTableSchema('{{%paypaltransparentredirect_trxresponse}}');
+        if ($tableSchema === null) {
+            $self->createTable(
+                '{{%paypaltransparentredirect_trxresponse}}',
+                array_merge([
+                    'id' => $self->primaryKey(),
+                    'dateCreated' => $self->dateTime()->notNull(),
+                    'dateUpdated' => $self->dateTime()->notNull(),
+                    'uid' => $self->uid(),
+                    // Custom columns in the table
+                    'fullResponse' => $self->json(),
+                ], self::getTrxFields($self))
+            );
+
+            $tableCreated = true;
+        }
+
+        return $tableCreated;
+    }
+
+    /**
+     * Creates the tables needed for the Records used by the plugin
+     *
+     * @return bool
+     */
+    protected static function createItemsTable($self) {
+        $tableCreated = false;
 
         // paypaltransparentredirect_item table
         $tableSchema = Craft::$app->db->schema->getTableSchema('{{%paypaltransparentredirect_item}}');
         if ($tableSchema === null) {
-            $tablesCreated = true;
-            $this->createTable(
+            $self->createTable(
                 '{{%paypaltransparentredirect_item}}',
                 [
-                    'id' => $this->primaryKey(),
-                    'dateCreated' => $this->dateTime()->notNull(),
-                    'dateUpdated' => $this->dateTime()->notNull(),
-                    'uid' => $this->uid(),
+                    'id' => $self->primaryKey(),
+                    'dateCreated' => $self->dateTime()->notNull(),
+                    'dateUpdated' => $self->dateTime()->notNull(),
+                    'uid' => $self->uid(),
                     // Custom columns in the table
-                    'name' => $this->string(255)->notNull()->defaultValue(''),
-                    'identifier' => $this->string(255)->notNull()->defaultValue(''),
-                    'cost' => $this->decimal(16, 2)
+                    'name' => $self->string(255)->notNull(),
+                    'identifier' => $self->string(21)->notNull(),
+                    'cost' => $self->decimal(16, 2),
+                    'gratisCount' => $self->smallInteger()->unsigned()->notNull()->defaultValue(0),
                 ]
             );
+
+            $tableCreated = true;
         }
 
-        return $tablesCreated;
+        return $tableCreated;
     }
 
     /**
@@ -142,6 +197,7 @@ class Install extends Migration {
                 break;
         }
     }
+
 
     /**
      * Creates the foreign keys needed for the Records used by the plugin
@@ -178,5 +234,6 @@ class Install extends Migration {
         // paypaltransparentredirect_item table
         $this->dropTableIfExists('{{%paypaltransparentredirect_item}}');
         $this->dropTableIfExists('{{%paypaltransparentredirect_paypaltransparentredirectrecord}}');
+        $this->dropTableIfExists('{{%paypaltransparentredirect_trxresponse}}');
     }
 }

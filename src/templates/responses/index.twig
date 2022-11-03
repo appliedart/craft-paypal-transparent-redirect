@@ -1,0 +1,26 @@
+{% extends 'paypal-transparent-redirect/_layouts' %}
+
+{% import '_includes/forms' as forms %}
+
+{% set crumbs = [
+    { label: craft.paypalTransparentRedirect.getPluginName|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect') },
+    { label: "Transaction Responses"|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect/responses') },
+] %}
+
+{% set selectedTab = 'responses' %}
+
+{% block content %}
+    {% include 'paypal-transparent-redirect/responses/_table' with { responses: responses } %}
+    {{ parent() }}
+{% endblock %}
+
+{% js %}
+    var adminTable = new Craft.AdminTable({
+        tableSelector: '#responses',
+        sortable: false,
+        reorderAction: 'paypal-transparent-redirect/paypal-items/reorder-items',
+        deleteAction: 'paypal-transparent-redirect/paypal-items/delete-item',
+        confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}”?"|t('paypal-transparent-redirect') }}'
+    });
+{% endjs %}
+

@@ -142,6 +142,7 @@ class PaypalItems extends Component {
         $record->name = trim($model->name);
         $record->identifier = trim($model->identifier);
         $record->cost = trim($model->cost);
+        $record->gratisCount = trim($model->gratisCount);
 
         if ($isNewModel) {
             $maxSortOrder = (new Query())
@@ -221,6 +222,7 @@ class PaypalItems extends Component {
                 'name',
                 'identifier',
                 'cost',
+                'gratisCount',
                 // 'siteId',
                 'sortOrder',
                 'dateCreated',

@@ -5,8 +5,11 @@ namespace appliedart\paypaltransparentredirect\services;
 use appliedart\paypaltransparentredirect\Plugin;
 use appliedart\paypaltransparentredirect\models\Settings as PaypalSettings;
 use appliedart\paypaltransparentredirect\models\PaypalItemModel;
+use appliedart\paypaltransparentredirect\models\TransactionResponse;
 use appliedart\paypaltransparentredirect\records\PaypalItemRecord;
+use appliedart\paypaltransparentredirect\records\TransactionResponseRecord;
 use appliedart\paypaltransparentredirect\events\PaypalItemEvent;
+use appliedart\paypaltransparentredirect\events\TransactionResponseEvent;
 
 use Cake\Utility\Hash;
 use Exception;
@@ -15,6 +18,8 @@ use craft\base\Component;
 use craft\db\Query;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use CommerceGuys\Addressing\Country\CountryRepository;
+use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
 
 /**
  *
@@ -26,6 +31,9 @@ class Payments extends Component {
 	protected $settings;
 	protected $request;
 	protected $debug;
+	protected $_currentResponse = [];
+	protected $_countries = [];
+	protected $_countriesByNumericCode = [];
 
 	public function init() {
 		parent::init();
@@ -34,6 +42,32 @@ class Payments extends Component {
 		$this->settings = Plugin::$plugin->settings;
 		$this->request = Craft::$app->getRequest();
 		$this->debug = boolval(getenv('PAYFLOW_DEBUG'));
+	}
+
+	public function getCountryList() {
+		if (!$this->_countries || empty($this->_countries)) {
+			$countryRepository = new CountryRepository();
+			$this->_countries = $countryRepository->getAll();
+		}
+		return $this->_countries;
+	}
+
+	public function getCountryByNumericCode($code) {
+		$country = NULL;
+		if (!$this->_countriesByNumericCode || empty($this->_countriesByNumericCode)) {
+			$this->getCountryList();
+			foreach (array_keys($this->_countries) as $countryCode) {
+				$i = $countryCode;
+				$numericCode = $this->_countries[$i]->getNumericCode() . '';
+				$this->_countriesByNumericCode[$numericCode] =& $this->_countries[$i];
+			}
+		}
+
+		if (isset($this->_countriesByNumericCode[$code])) {
+			$country = $this->_countriesByNumericCode[$code];
+		}
+
+		return $country;
 	}
 
 	public function getPayflowEndpoint($payflowAuto = FALSE) {
@@ -71,6 +105,8 @@ class Payments extends Component {
 		$variables['secureToken'] = $secureToken;
 		$variables['paymentInputDefaults'] = $this->getPaymentFormDefaults($this->debug);
 
+		// var_dump($variables);
+
 		return Craft::$app->view->renderTemplate('paypal-transparent-redirect/items/payment', $variables);
 	}
 
@@ -87,6 +123,7 @@ class Payments extends Component {
 			'BILLTOCITY' => $debug ? 'Beverly Hills' : NULL,
 			'BILLTOSTATE' => $debug ? 'CA' : NULL,
 			'BILLTOZIP' => $debug ? '90210' : NULL,
+			'BILLTOCOUNTRY' => 'US',
 			'BILLTOEMAIL' => NULL,
 			'BILLTOPHONENUM' => NULL,
 			'ACCT' => $payflowMode === 'TEST' ? getenv('PAYFLOW_TEST_CC_NUM') : NULL,
@@ -99,6 +136,7 @@ class Payments extends Component {
 		if (isset($this->user->defaultAddress->locality)) $paymentInputDefaults['BILLTOCITY'] = $this->user->defaultAddress->locality;
 		if (isset($this->user->defaultAddress->administrativeAreaCode)) $paymentInputDefaults['BILLTOSTATE'] = $this->user->defaultAddress->administrativeAreaCode;
 		if (isset($this->user->defaultAddress->postalCode)) $paymentInputDefaults['BILLTOZIP'] = $this->user->defaultAddress->postalCode;
+		if (isset($this->user->defaultAddress->countryCode)) $paymentInputDefaults['BILLTOCOUNTRY'] = $this->user->defaultAddress->countryCode;
 
 		if (isset($this->user->firstName)) $paymentInputDefaults['BILLTOFIRSTNAME'] = $this->user->firstName;
 		if (isset($this->user->lastName)) $paymentInputDefaults['BILLTOLASTNAME'] = $this->user->lastName;
@@ -110,65 +148,55 @@ class Payments extends Component {
 			$paymentInputDefaults['BILLTOPHONENUM'] = $this->user->cellPhone->phone;
 		}
 
+		if (empty($this->_currentResponse) && $postVars = $this->request->post()) {
+			$this->_currentResponse = $postVars;
+		}
+
+		foreach ($this->_currentResponse as $key => $val) {
+			if (array_key_exists($key, $paymentInputDefaults)) {
+				$paymentInputDefaults[$key] = $val;
+			}
+		}
+
 		return $paymentInputDefaults;
 	}
 
 	public function processResponse() {
 		$response = [];
-		$postVars = $this->request->getIsPost() ? $this->request->post() : [];
 
-		if (array_key_exists('RESULT', $postVars) && array_key_exists( 'RESPMSG', $postVars)) {
-			$response['post'] = $postVars;
+		if (empty($this->_currentResponse) && $postVars = $this->request->post()) {
+			$this->_currentResponse = $postVars;
+		}
 
-			if ($postVars['RESULT'] === '0' && $postVars['RESPMSG'] == 'Approved') {
+		if (array_key_exists('RESULT', $this->_currentResponse) && array_key_exists( 'RESPMSG', $this->_currentResponse)) {
+			$response['post'] = $this->_currentResponse;
+
+			if ($this->_currentResponse['RESULT'] === '0' && $this->_currentResponse['RESPMSG'] == 'Approved') {
 				$response['success'] = TRUE;
 			} else {
 				$response['error'] = TRUE;
 			}
+
+			$responseModel = $this->_getResponseModelFromPost();
+			Plugin::$plugin->transactions->saveResponse($responseModel);
+
+			if ($this->user) {
+				$userFields = $this->user->fields();
+				if (array_key_exists('paypalResponses', $userFields)) {
+					$paypalResponses = $this->user->getFieldValue('paypalResponses');
+					if (is_array($paypalResponses) && !empty($paypalResponses)) {
+						array_unshift($paypalResponses, $responseModel);
+					} else {
+						$paypalResponses = [$responseModel];
+					}
+					$this->user->setFieldValue('paypalResponses', $paypalResponses);
+
+					$result = Craft::$app->elements->saveElement($this->user);
+				}
+			}
 		}
 
 		return $response;
-
-		/* response keys
-			STATE
-			SECURETOKEN
-			AVSDATA
-			BILLTOCITY
-			AMT
-			ACCT
-			BILLTOSTREET
-			CORRELATIONID
-			AUTHCODE
-			FIRSTNAME
-			RESULT
-			ZIP
-			IAVS
-			BILLTOSTATE
-			BILLTOLASTNAME
-			BILLTOCOUNTRY
-			EXPDATE
-			BILLTOFIRSTNAME
-			RESPMSG
-			CARDTYPE
-			PROCCVV2
-			PROCAVS
-			NAME
-			BILLTOZIP
-			COUNTRY
-			AVSZIP
-			ADDRESS
-			CVV2MATCH
-			TXID
-			BILLTONAME
-			PNREF
-			PPREF
-			TRXTYPE
-			AVSADDR
-			SECURETOKENID
-			CITY
-			TRANSTIME
-			LASTNAME
-		*/
 	}
 
 	public function getSecureTokenParams(PaypalItemModel $item, $secureTokenId = NULL, $secureToken = NULL, $private = TRUE) {
@@ -255,5 +283,36 @@ class Payments extends Component {
 		}
 
 		return $secureToken;
+	}
+
+	/**
+	 * @return TransactionResponse
+	 * @throws \yii\web\BadRequestHttpException
+	 */
+	protected function _getResponseModelFromPost() {
+		if (!$this->request->getIsPost()) {
+			return NULL;
+		}
+
+		if (empty($this->_currentResponse) && $postVars = $this->request->post()) {
+			$this->_currentResponse = $postVars;
+		}
+
+		if (array_key_exists('responseId', $this->_currentResponse)) {
+			$item = Plugin::$plugin->transactions->getResponseById($this->_currentResponse['responseId']);
+		} else {
+			$item = new TransactionResponse();
+		}
+
+		$fieldNames = TransactionResponses::getResponseFieldNames();
+		$item->fullResponse = json_encode($this->_currentResponse);
+
+		foreach ($fieldNames as $fieldName) {
+			if (array_key_exists($fieldName, $this->_currentResponse)) {
+				$item->{$fieldName} = substr($this->_currentResponse[$fieldName], 0, 100);
+			}
+		}
+
+		return $item;
 	}
 }

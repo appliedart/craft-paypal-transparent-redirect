@@ -13,6 +13,10 @@
     <a class="btn submit add icon" href="{{ url('paypal-transparent-redirect/items/new') }}">{{ 'New item'|t('paypal-transparent-redirect') }}</a>
 {% endblock %}
 
+{% block footer %}
+    <a class="btn icon" href="{{ url('paypal-transparent-redirect/responses') }}">{{ 'Transaction Responses'|t('paypal-transparent-redirect') }}</a>
+{% endblock %}
+
 {% block content %}
     <div id="noitems" class="zilch{% if items %} hidden{% endif %}">
         <p>{{ "No items exist yet."|t('paypal-transparent-redirect') }}</p>
@@ -24,6 +28,7 @@
                 <th scope="col">{{ "Name"|t('paypal-transparent-redirect') }}</th>
                 <th scope="col">{{ "Item No."|t('paypal-transparent-redirect') }}</th>
                 <th scope="col">{{ "Cost"|t('paypal-transparent-redirect') }}</th>
+                <th scope="col">{{ "Gratis Count"|t('paypal-transparent-redirect') }}</th>
                 <th class="thin" colspan="3"></th>
             </thead>
             <tbody>
@@ -36,6 +41,8 @@
                         <td>{{ item.identifier ?? '' }}</td>
 
                         <td>{{ item.cost ? item.cost|currency(craft.paypalTransparentRedirect.settings.getCurrency()) : '' }}</td>
+
+                        <td>{{ item.gratisCount ?? '' }}</td>
 
                         <td class="thin action">
                             <a class="move icon" title="{{ 'Reorder'|t('feed-me') }}" role="button"></a>
