@@ -4,7 +4,7 @@
 {% endif %}
 
 {% if itemCost is defined and itemCost > 0.00 and secureToken is not empty %}
-	<form id="form" method="post" action="{{ payflowEndpoint }}">
+	<form id="payflow-item-form" method="post" action="{{ payflowEndpoint }}">
 		{% for name, value in hiddenFields %}
 			{{ hiddenInput(name, value) }}
 		{% endfor %}

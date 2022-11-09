@@ -178,21 +178,8 @@ class Payments extends Component {
 			}
 
 			$responseModel = $this->_getResponseModelFromPost();
-			Plugin::$plugin->transactions->saveResponse($responseModel);
-
-			if ($this->user) {
-				$userFields = $this->user->fields();
-				if (array_key_exists('paypalResponses', $userFields)) {
-					$paypalResponses = $this->user->getFieldValue('paypalResponses');
-					if (is_array($paypalResponses) && !empty($paypalResponses)) {
-						array_unshift($paypalResponses, $responseModel);
-					} else {
-						$paypalResponses = [$responseModel];
-					}
-					$this->user->setFieldValue('paypalResponses', $paypalResponses);
-
-					$result = Craft::$app->elements->saveElement($this->user);
-				}
+			if (Plugin::$plugin->transactions->saveResponse($responseModel)) {
+				$response['transactionResponse'] = $responseModel;
 			}
 		}
 
