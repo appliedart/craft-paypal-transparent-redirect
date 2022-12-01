@@ -41,6 +41,8 @@ class PaypalItemModel extends Model {
     public $identifier;
     public $cost;
     public $gratisCount;
+    public $gratisItem;
+    public $gratisDescription;
     public $currency = 'USD';
     public $sortOrder;
 
@@ -64,11 +66,11 @@ class PaypalItemModel extends Model {
      */
     public function rules() {
         return [
-            [['name'], 'string'],
+            [['name', 'gratisDescription'], 'string'],
             [['identifier'], 'string', 'max' => 21],
             [['cost'], 'default', 'value' => 0.00],
             [['cost'], 'filter', 'filter' => [$this, 'sanitizeInput']],
-            [['cost', 'gratisCount'], 'number'],
+            [['cost', 'gratisCount', 'gratisItem'], 'number'],
             [['name', 'identifier', 'name'], 'required'],
             [['identifier'], 'unique', 'targetClass' => PaypalItemRecord::class, 'filter' => function ($query) {
                 if ($this->identifier !== null) {

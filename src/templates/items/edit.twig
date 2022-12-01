@@ -1,3 +1,5 @@
+{% do view.registerAssetBundle("craft\\redactor\\assets\\redactor\\RedactorAsset") %}
+
 {% import '_includes/forms' as forms %}
 
 {% extends 'paypal-transparent-redirect/_layouts' %}
@@ -77,6 +79,32 @@
         errors: item.getErrors('gratisCount'),
         required: true,
     }) }}
+
+    {{ forms.selectField({
+        label: 'Gratis Item'|t('paypal-transparent-redirect'),
+        instructions: 'Membership type for free memberships.',
+        id: 'gratisItem',
+        name: 'gratisItem',
+        value: item.gratisItem,
+        errors: item.getErrors('gratisItem'),
+        options: gratisItemOptions,
+        required: false,
+    }) }}
+
+    {{ forms.textareaField({
+        label: 'Gratis Description'|t('paypal-transparent-redirect'),
+        instructions: null,
+        id: 'gratisDescription',
+        name: 'gratisDescription',
+        value: item.gratisDescription,
+        errors: item.getErrors('gratisDescription'),
+        required: false,
+    }) }}
+
+    {% js on load %}
+        $R('#gratisDescription');
+    {% endjs %}
+
 
     {{ parent() }}
 {% endblock %}

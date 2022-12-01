@@ -143,6 +143,8 @@ class PaypalItems extends Component {
         $record->identifier = trim($model->identifier);
         $record->cost = trim($model->cost);
         $record->gratisCount = trim($model->gratisCount);
+        $record->gratisItem = trim($model->gratisItem);
+        $record->gratisDescription = trim($model->gratisDescription);
 
         if ($isNewModel) {
             $maxSortOrder = (new Query())
@@ -214,22 +216,28 @@ class PaypalItems extends Component {
     /**
      * @return \craft\db\ActiveQuery
      */
-    private function _getQuery()
-    {
-        return PaypalItemRecord::find()
-            ->select([
-                'id',
-                'name',
-                'identifier',
-                'cost',
-                'gratisCount',
-                // 'siteId',
-                'sortOrder',
-                'dateCreated',
-                'dateUpdated',
-                'uid',
-            ])
-            ->orderBy(['sortOrder' => SORT_ASC, 'cost' => SORT_ASC, 'identifier' => SORT_ASC, 'name' => SORT_ASC, 'dateCreated' => SORT_DESC, 'id' => SORT_ASC]);
+    private function _getQuery() {
+        return PaypalItemRecord::find()->select([
+            'id',
+            'name',
+            'identifier',
+            'cost',
+            'gratisCount',
+            'gratisItem',
+            'gratisDescription',
+            // 'siteId',
+            'sortOrder',
+            'dateCreated',
+            'dateUpdated',
+            'uid',
+        ])->orderBy([
+            'sortOrder' => SORT_ASC,
+            'cost' => SORT_ASC,
+            'identifier' => SORT_ASC,
+            'name' => SORT_ASC,
+            'dateCreated' => SORT_DESC,
+            'id' => SORT_ASC
+        ]);
     }
 
     /**

@@ -74,7 +74,7 @@ class Plugin extends BasePlugin {
      *
      * @var string
      */
-    public $schemaVersion = '0.2.3';
+    public $schemaVersion = '0.2.6';
 
     /**
      * Set to `true` if the plugin should have a settings view in the control panel.

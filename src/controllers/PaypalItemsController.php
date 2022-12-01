@@ -5,6 +5,7 @@ namespace appliedart\paypaltransparentredirect\controllers;
 use Cake\Utility\Hash;
 use Craft;
 use appliedart\paypaltransparentredirect\models\PaypalItemModel;
+use appliedart\paypaltransparentredirect\fields\PaypalItem as PaypalItemField;
 use appliedart\paypaltransparentredirect\Plugin;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
@@ -53,6 +54,9 @@ class PaypalItemsController extends Controller {
         } else {
             $variables['item'] = $item;
         }
+
+        $tmpItemField = new PaypalItemField();
+        $variables['gratisItemOptions'] = array_replace(['' => Craft::t('paypal-transparent-redirect', 'Select an Item')], $tmpItemField->getOptions());
 
         return $this->renderTemplate('paypal-transparent-redirect/items/edit', $variables);
     }
@@ -150,6 +154,8 @@ class PaypalItemsController extends Controller {
         $item->identifier = $request->getBodyParam('identifier', $item->identifier);
         $item->cost = $request->getBodyParam('cost', $item->cost);
         $item->gratisCount = $request->getBodyParam('gratisCount', $item->gratisCount);
+        $item->gratisItem = $request->getBodyParam('gratisItem', $item->gratisItem);
+        $item->gratisDescription = $request->getBodyParam('gratisDescription', $item->gratisDescription);
         // $item->siteId = $request->getBodyParam('siteId', $item->siteId);
 
         return $item;

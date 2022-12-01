@@ -163,6 +163,8 @@ class Install extends Migration {
                     'identifier' => $self->string(21)->notNull(),
                     'cost' => $self->decimal(16, 2),
                     'gratisCount' => $self->smallInteger()->unsigned()->notNull()->defaultValue(0),
+                    'gratisItem' => $self->smallInteger()->unsigned()->null()->defaultValue(NULL),
+                    'gratisDescription' => $self->text()->null()->defaultValue(NULL),
                 ]
             );
 

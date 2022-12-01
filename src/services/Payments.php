@@ -84,7 +84,7 @@ class Payments extends Component {
 		return $payflowEndpoint;
 	}
 
-	public function renderPaymentForm(PaypalItemModel $item) {
+	public function renderPaymentForm(PaypalItemModel $item, $additionalItems = [], $fieldData = []) {
 		$variables = [];
 		$params = [];
 
@@ -93,13 +93,13 @@ class Payments extends Component {
 
 		if (!$secureTokenId || !$secureToken) {
 			$secureTokenId = substr(uniqid($item->identifier . '-') . uniqid(), 0, 36);
-			$secureTokenParams = $this->getSecureTokenParams($item, $secureTokenId);
+			$secureTokenParams = $this->getSecureTokenParams($item, $additionalItems, $fieldData, $secureTokenId);
 			$secureToken = $this->getSecureToken($secureTokenParams);
 		}
 
 		$variables['debug'] = $this->debug;
 		$variables['payflowEndpoint'] = $this->getPayflowEndpoint();
-		$variables['hiddenFields'] = $this->getSecureTokenParams($item, $secureTokenId, $secureToken, FALSE);
+		$variables['hiddenFields'] = $this->getSecureTokenParams($item, $additionalItems, $fieldData, $secureTokenId, $secureToken, FALSE);
 		$variables['itemCost'] = $item->cost;
 		$variables['secureTokenId'] = $secureTokenId;
 		$variables['secureToken'] = $secureToken;
@@ -170,8 +170,9 @@ class Payments extends Component {
 
 		if (array_key_exists('RESULT', $this->_currentResponse) && array_key_exists( 'RESPMSG', $this->_currentResponse)) {
 			$response['post'] = $this->_currentResponse;
+			$respMsgTrimmed = preg_replace('/\s*:.*$/', '', $this->_currentResponse['RESPMSG']);
 
-			if ($this->_currentResponse['RESULT'] === '0' && $this->_currentResponse['RESPMSG'] == 'Approved') {
+			if ($this->_currentResponse['RESULT'] === '0' && ($this->_currentResponse['RESPMSG'] == 'Approved' || $respMsgTrimmed == 'Approved')) {
 				$response['success'] = TRUE;
 			} else {
 				$response['error'] = TRUE;
@@ -186,7 +187,7 @@ class Payments extends Component {
 		return $response;
 	}
 
-	public function getSecureTokenParams(PaypalItemModel $item, $secureTokenId = NULL, $secureToken = NULL, $private = TRUE) {
+	public function getSecureTokenParams(PaypalItemModel $item, $additionalItems, $userParams = [], $secureTokenId = NULL, $secureToken = NULL, $private = TRUE) {
 		$payflowEnvironment = $this->settings->getPayflowEnvironment();
 		$currency = $this->settings->getCurrency();
 		$itemCost = number_format(floatval($item->cost), 2, '.', '');
@@ -195,7 +196,7 @@ class Payments extends Component {
 		$payflowMode = $payflowTestMode ? 'TEST' : '';
 		$returnUrl = UrlHelper::siteUrl($this->request->pathinfo);
 
-		$params = !$private || $secureToken ? [] : [
+		$params = !$private || $secureToken ? $userParams : [
 			'PARTNER' => $this->settings->getPayflowPartner(),
 			'VENDOR' => $this->settings->getPayflowVendor(),
 			'USER' => $this->settings->getPayflowUsername(),
@@ -207,6 +208,8 @@ class Payments extends Component {
 			'ERRORURL' => $returnUrl,
 		];
 
+		$totalAmt = $itemCost;
+
 		$params = $params + [
 			'SILENTTRAN' => 'TRUE',
 			'CURRENCY' => $currency,
@@ -217,12 +220,30 @@ class Payments extends Component {
 			'L_ITEMNUMBER0' => $item->identifier,
 			'L_COST0' => $itemCost,
 			'L_QTY0' => 1,
+		];
+
+		$i = 0;
+		foreach ($additionalItems as $additionalItem) {
+			$i++;
+			$itemTotal = $additionalItem['cost'] * $additionalItem['qty'];
+			$totalAmt += $itemTotal;
+			$params = $params + [
+				('L_NAME' . $i) => $additionalItem['name'],
+				('L_ITEMNUMBER' . $i) => $additionalItem['identifier'],
+				('L_COST' . $i) => number_format(floatval($additionalItem['cost']), 2, '.', ''),
+				('L_QTY' . $i) => $additionalItem['qty'],
+			];
+		}
+
+		$totalAmt = number_format(floatval($totalAmt), 2, '.', '');
+
+		$params = $params + [
 			'SHIPPINGAMT' => '0.00',
 			'HANDLINGAMT' => '0.00',
 			'FREIGHTAMT' => '0.00',
 			'TAXAMT' => '0.00',
-			'ITEMAMT' => $itemCost,
-			'AMT' => $itemCost,
+			'ITEMAMT' => $totalAmt,
+			'AMT' => $totalAmt,
 		];
 
 		if ($secureTokenId) {
