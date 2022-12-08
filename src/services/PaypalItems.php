@@ -144,6 +144,7 @@ class PaypalItems extends Component {
         $record->cost = trim($model->cost);
         $record->gratisCount = trim($model->gratisCount);
         $record->gratisItem = trim($model->gratisItem);
+        $record->gratisTitle = trim($model->gratisTitle);
         $record->gratisDescription = trim($model->gratisDescription);
 
         if ($isNewModel) {
@@ -224,6 +225,7 @@ class PaypalItems extends Component {
             'cost',
             'gratisCount',
             'gratisItem',
+            'gratisTitle',
             'gratisDescription',
             // 'siteId',
             'sortOrder',

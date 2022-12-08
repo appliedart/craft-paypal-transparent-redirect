@@ -91,6 +91,16 @@
         required: false,
     }) }}
 
+    {{ forms.textField({
+        label: 'Gratis Title'|t('paypal-transparent-redirect'),
+        instructions: null,
+        id: 'gratisTitle',
+        name: 'gratisTitle',
+        value: item.gratisTitle,
+        errors: item.getErrors('gratisTitle'),
+        required: false,
+    }) }}
+
     {{ forms.textareaField({
         label: 'Gratis Description'|t('paypal-transparent-redirect'),
         instructions: null,

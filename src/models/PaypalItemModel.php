@@ -42,6 +42,7 @@ class PaypalItemModel extends Model {
     public $cost;
     public $gratisCount;
     public $gratisItem;
+    public $gratisTitle;
     public $gratisDescription;
     public $currency = 'USD';
     public $sortOrder;
@@ -66,7 +67,7 @@ class PaypalItemModel extends Model {
      */
     public function rules() {
         return [
-            [['name', 'gratisDescription'], 'string'],
+            [['name', 'gratisTitle', 'gratisDescription'], 'string'],
             [['identifier'], 'string', 'max' => 21],
             [['cost'], 'default', 'value' => 0.00],
             [['cost'], 'filter', 'filter' => [$this, 'sanitizeInput']],

@@ -155,6 +155,7 @@ class PaypalItemsController extends Controller {
         $item->cost = $request->getBodyParam('cost', $item->cost);
         $item->gratisCount = $request->getBodyParam('gratisCount', $item->gratisCount);
         $item->gratisItem = $request->getBodyParam('gratisItem', $item->gratisItem);
+        $item->gratisTitle = $request->getBodyParam('gratisTitle', $item->gratisTitle);
         $item->gratisDescription = $request->getBodyParam('gratisDescription', $item->gratisDescription);
         // $item->siteId = $request->getBodyParam('siteId', $item->siteId);
 
