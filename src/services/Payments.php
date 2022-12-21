@@ -154,7 +154,7 @@ class Payments extends Component {
 
 		foreach ($this->_currentResponse as $key => $val) {
 			if (array_key_exists($key, $paymentInputDefaults)) {
-				$paymentInputDefaults[$key] = $val;
+				$paymentInputDefaults[$key] = $key == 'ACCT' ? '' : $val;
 			}
 		}
 
