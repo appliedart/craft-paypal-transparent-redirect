@@ -16,6 +16,7 @@ use Exception;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use craft\helpers\App;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use CommerceGuys\Addressing\Country\CountryRepository;
@@ -126,9 +127,9 @@ class Payments extends Component {
 			'BILLTOCOUNTRY' => 'US',
 			'BILLTOEMAIL' => NULL,
 			'BILLTOPHONENUM' => NULL,
-			'ACCT' => $payflowMode === 'TEST' ? getenv('PAYFLOW_TEST_CC_NUM') : NULL,
-			'EXPDATE' => $payflowMode === 'TEST' ? getenv('PAYFLOW_TEST_CC_EXP') : NULL,
-			'CVV2' => $payflowMode === 'TEST' ? '123' : NULL
+			'ACCT' => $payflowMode === 'TEST' ? App::env('PAYFLOW_TEST_CC_NUM') : NULL,
+			'EXPDATE' => $payflowMode === 'TEST' ? App::env('PAYFLOW_TEST_CC_EXP') : NULL,
+			'CVV2' => $payflowMode === 'TEST' ? App::env('PAYFLOW_TEST_CC_CVV2') : NULL
 		];
 
 		if (isset($this->user->defaultAddress->address1)) $paymentInputDefaults['BILLTOSTREET'] = $this->user->defaultAddress->address1;
@@ -154,7 +155,7 @@ class Payments extends Component {
 
 		foreach ($this->_currentResponse as $key => $val) {
 			if (array_key_exists($key, $paymentInputDefaults)) {
-				$paymentInputDefaults[$key] = $key == 'ACCT' ? '' : $val;
+				$paymentInputDefaults[$key] = in_array($key, ['ACCT', 'EXPDATE', 'CVV2']) ? '' : $val;
 			}
 		}
 
