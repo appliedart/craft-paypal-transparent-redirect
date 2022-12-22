@@ -92,6 +92,13 @@ class Payments extends Component {
 		$secureTokenId = $this->request->getBodyParam('SECURETOKENID');
 		$secureToken = $this->request->getBodyParam('SECURETOKEN');
 
+
+		$hostCode = $this->request->getBodyParam('HOSTCODE');
+		if ($hostCode == '10002') {
+			$secureTokenId = NULL;
+			$secureToken = NULL;
+		}
+
 		if (!$secureTokenId || !$secureToken) {
 			$secureTokenId = substr(uniqid($item->identifier . '-') . uniqid(), 0, 36);
 			$secureTokenParams = $this->getSecureTokenParams($item, $additionalItems, $fieldData, $secureTokenId);
