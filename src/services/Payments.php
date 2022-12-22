@@ -151,9 +151,9 @@ class Payments extends Component {
 		if (isset($this->user->email)) $paymentInputDefaults['BILLTOEMAIL'] = $this->user->email;
 
 		if (isset($this->user->homePhone->phone)) {
-			$paymentInputDefaults['BILLTOPHONENUM'] = $this->user->homePhone->phone;
+			$paymentInputDefaults['BILLTOPHONENUM'] = $this->user->homePhone + '';
 		} else if (isset($this->user->cellPhone->phone)) {
-			$paymentInputDefaults['BILLTOPHONENUM'] = $this->user->cellPhone->phone;
+			$paymentInputDefaults['BILLTOPHONENUM'] = $this->user->cellPhone + '';
 		}
 
 		if (empty($this->_currentResponse) && $postVars = $this->request->post()) {
