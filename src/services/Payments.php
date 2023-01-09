@@ -4,12 +4,9 @@ namespace appliedart\paypaltransparentredirect\services;
 
 use appliedart\paypaltransparentredirect\Plugin;
 use appliedart\paypaltransparentredirect\models\Settings as PaypalSettings;
-use appliedart\paypaltransparentredirect\models\PaypalItemModel;
+use appliedart\paypaltransparentredirect\models\PaypalItem;
+use appliedart\paypaltransparentredirect\models\PaypalToken;
 use appliedart\paypaltransparentredirect\models\TransactionResponse;
-use appliedart\paypaltransparentredirect\records\PaypalItemRecord;
-use appliedart\paypaltransparentredirect\records\TransactionResponseRecord;
-use appliedart\paypaltransparentredirect\events\PaypalItemEvent;
-use appliedart\paypaltransparentredirect\events\TransactionResponseEvent;
 
 use Cake\Utility\Hash;
 use Exception;
@@ -30,6 +27,7 @@ class Payments extends Component {
 
 	protected $user;
 	protected $settings;
+	protected $session;
 	protected $request;
 	protected $debug;
 	protected $_currentResponse = [];
@@ -43,6 +41,12 @@ class Payments extends Component {
 		$this->settings = Plugin::$plugin->settings;
 		$this->request = Craft::$app->getRequest();
 		$this->debug = boolval(getenv('PAYFLOW_DEBUG'));
+
+		try {
+			$this->session = Craft::$app->getSession();
+		} catch (\Exception $e) {
+			$this->session = NULL;
+		}
 	}
 
 	public function getCountryList() {
@@ -85,13 +89,12 @@ class Payments extends Component {
 		return $payflowEndpoint;
 	}
 
-	public function renderPaymentForm(PaypalItemModel $item, $additionalItems = [], $fieldData = []) {
+	public function renderPaymentForm(PaypalItem $item, $additionalItems = [], $fieldData = [], PaypalToken $paypalToken = NULL) {
 		$variables = [];
 		$params = [];
 
 		$secureTokenId = $this->request->getBodyParam('SECURETOKENID');
 		$secureToken = $this->request->getBodyParam('SECURETOKEN');
-
 
 		$hostCode = $this->request->getBodyParam('HOSTCODE');
 		if ($hostCode == '10002') {
@@ -112,6 +115,15 @@ class Payments extends Component {
 		$variables['secureTokenId'] = $secureTokenId;
 		$variables['secureToken'] = $secureToken;
 		$variables['paymentInputDefaults'] = $this->getPaymentFormDefaults($this->debug);
+
+		if (!($paypalToken || $paypalToken = Plugin::$plugin->tokens->getTokenBySecureToken($secureToken, $secureTokenId))) {
+			$paypalToken = new PaypalToken();
+			$paypalToken->secureToken = $secureToken;
+			$paypalToken->secureTokenId = $secureTokenId;
+			Plugin::$plugin->tokens->saveToken($paypalToken);
+		}
+
+		$this->session->set('paypalToken', $paypalToken);
 
 		// var_dump($variables);
 
@@ -171,9 +183,17 @@ class Payments extends Component {
 
 	public function processResponse() {
 		$response = [];
+		$response['paypalToken'] = NULL;
 
 		if (empty($this->_currentResponse) && $postVars = $this->request->post()) {
 			$this->_currentResponse = $postVars;
+		}
+
+		$secureToken = array_key_exists('SECURETOKEN', $this->_currentResponse) ? trim($this->_currentResponse['SECURETOKEN']) : NULL;
+		$secureTokenId = array_key_exists('SECURETOKENID', $this->_currentResponse) ? trim($this->_currentResponse['SECURETOKENID']) : NULL;
+
+		if ($secureToken || $secureTokenId) {
+			$response['paypalToken'] = Plugin::$plugin->tokens->getTokenBySecureToken($secureToken, $secureTokenId);
 		}
 
 		if (array_key_exists('RESULT', $this->_currentResponse) && array_key_exists( 'RESPMSG', $this->_currentResponse)) {
@@ -189,13 +209,20 @@ class Payments extends Component {
 			$responseModel = $this->_getResponseModelFromPost();
 			if (Plugin::$plugin->transactions->saveResponse($responseModel)) {
 				$response['transactionResponse'] = $responseModel;
+
+				if ($response['paypalToken']) {
+					$response['paypalToken']->lastTransactionId = $responseModel->id;
+					Plugin::$plugin->tokens->saveToken($response['paypalToken']);
+				}
 			}
+
+			//print_r($response); exit;
 		}
 
 		return $response;
 	}
 
-	public function getSecureTokenParams(PaypalItemModel $item, $additionalItems, $userParams = [], $secureTokenId = NULL, $secureToken = NULL, $private = TRUE) {
+	public function getSecureTokenParams(PaypalItem $item, $additionalItems, $userParams = [], $secureTokenId = NULL, $secureToken = NULL, $private = TRUE) {
 		$payflowEnvironment = $this->settings->getPayflowEnvironment();
 		$currency = $this->settings->getCurrency();
 		$itemCost = number_format(floatval($item->cost), 2, '.', '');

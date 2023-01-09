@@ -18,7 +18,7 @@ use craft\base\Model;
 use craft\fields\Number;
 
 /**
- * PaypalItemModel Model
+ * TransactionResponse Model
  *
  * Models are containers for data. Just about every time information is passed
  * between services, controllers, and templates in Craft, it’s passed via a model.
@@ -37,6 +37,7 @@ class TransactionResponse extends Model {
     public $uid;
     public $dateCreated;
     public $dateUpdated;
+    public $isComplete = FALSE;
     public $fullResponse;
 
     public $PNREF;
@@ -147,5 +148,13 @@ class TransactionResponse extends Model {
 
     public function rules() {
         return [];
+    }
+
+    public function getApproved() {
+        if ($this->RESULT === '0' && preg_match('/^Approved\\b/i', $this->RESPMSG)) {
+            return TRUE;
+        }
+
+        return FALSE;
     }
 }

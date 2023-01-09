@@ -14,6 +14,7 @@ use appliedart\paypaltransparentredirect\variables\PaypalTransparentRedirectVari
 use appliedart\paypaltransparentredirect\twigextensions\PaypalTransparentRedirectTwigExtension;
 use appliedart\paypaltransparentredirect\models\Settings;
 use appliedart\paypaltransparentredirect\services\PaypalItems;
+use appliedart\paypaltransparentredirect\services\PaypalTokens;
 use appliedart\paypaltransparentredirect\services\Payments;
 use appliedart\paypaltransparentredirect\services\TransactionResponses;
 use appliedart\paypaltransparentredirect\fields\PaypalItem as PaypalItemField;
@@ -74,7 +75,7 @@ class Plugin extends BasePlugin {
      *
      * @var string
      */
-    public $schemaVersion = '0.2.7';
+    public $schemaVersion = '0.3.5';
 
     /**
      * Set to `true` if the plugin should have a settings view in the control panel.
@@ -118,6 +119,7 @@ class Plugin extends BasePlugin {
 
         $this->setComponents([
             'items' => PaypalItems::class,
+            'tokens' => PaypalTokens::class,
             'payments' => Payments::class,
             'transactions' => TransactionResponses::class,
         ]);

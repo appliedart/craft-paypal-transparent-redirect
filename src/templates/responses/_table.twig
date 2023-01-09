@@ -7,6 +7,7 @@
             <thead>
                 <th scope="col">{{ "Transaction ID"|t('paypal-transparent-redirect') }}</th>
                 <th scope="col">{{ "Response Message"|t('paypal-transparent-redirect') }}</th>
+                <th scope="col">{{ "Name"|t('paypal-transparent-redirect') }}</th>
                 <th scope="col">{{ "Amount"|t('paypal-transparent-redirect') }}</th>
                 <th scope="col">{{ "Token ID"|t('paypal-transparent-redirect') }}</th>
                 <th scope="col">{{ "Timestamp"|t('paypal-transparent-redirect') }}</th>
@@ -17,13 +18,22 @@
                     {% set paypalUrl = response.PNREF is defined and response.PNREF is not empty ? 'https://manager.paypal.com/searchTranx.do?subaction=transDetails&id=' ~ response.PNREF : null %}
                     {% set timestampClass = response.TRANSTIME is empty ? 'error' : '' %}
                     {% set timestamp = (response.TRANSTIME is empty ? response.dateCreated : response.TRANSTIME)|date('m/d/Y @ h:i a') %}
+                    {% set name = response.NAME is not empty ? response.NAME : null %}
+
+                    {% if not name and response.LASTNAME is not empty %}
+                        {% set name = response.FIRSTNAME ~ ' ' ~ response.LASTNAME %}
+                    {% elseif not name and response.BILLTOLASTNAME is not empty %}
+                        {% set name = response.BILLTOFIRSTNAME ~ ' ' ~ response.BILLTOLASTNAME %}
+                    {% endif %}
 
                     <tr data-id="{{ response.id }}" data-name="{{ response.PNREF|t('paypal-transparent-redirect') }}">
                         <th scope="row" data-title="Name">
                             <a href="{{ cpUrl('paypal-transparent-redirect/responses/' ~ response.id) }}">{{ response.PNREF|t('paypal-transparent-redirect') }}</a>
                         </th>
 
-                        <td>{{ response.RESPMSG }}</td>
+                        <td>{{ response.RESPMSG|truncate(40, '...') }}</td>
+
+                        <td>{{ name|trim() }}</td>
 
                         <td>{{ response.AMT is defined ? response.AMT|currency(craft.paypalTransparentRedirect.settings.getCurrency()) : null }}</td>
 

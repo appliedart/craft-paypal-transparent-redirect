@@ -25,6 +25,13 @@
 {% endif %}
 
 {% block actionButton %}
+    {% if craft.SiteUtilitiesModule is defined %}
+        {% if response.getApproved() and not response.isComplete %}
+            <a class="btn icon" href="{{ url('paypal-response/' ~ response.id ~ '/update-membership') }}">{{ 'Update Membership'|t('paypal-transparent-redirect') }}</a>
+        {% elseif response.getApproved() and response.isComplete %}
+            <a class="btn icon" href="{{ url('paypal-response/' ~ response.id ~ '/send-notification') }}">{{ 'Resend Notification'|t('paypal-transparent-redirect') }}</a>
+        {% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

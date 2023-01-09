@@ -18,7 +18,7 @@ use craft\base\Model;
 use craft\fields\Number;
 
 /**
- * PaypalItemModel Model
+ * PaypalItem Model
  *
  * Models are containers for data. Just about every time information is passed
  * between services, controllers, and templates in Craft, it’s passed via a model.
@@ -29,7 +29,7 @@ use craft\fields\Number;
  * @package   PaypalTransparentRedirect
  * @since     0.1.0
  */
-class PaypalItemModel extends Model {
+class PaypalItem extends Model {
     // Public Properties
     // =========================================================================
 

@@ -9,12 +9,12 @@
 ]) %}
 
 {% set crumbs = [
-    { label: craft.paypalTransparentRedirect.getPluginName|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect') },
+    { label: craft.paypalTransparentRedirect.getPluginName|t('paypal-transparent-redirect'), url: cpUrl('paypal-transparent-redirect') },
 ] %}
 
 {% if item.id %}
     {% set crumbs = crumbs|merge([
-        { label: item.name|t('paypal-transparent-redirect'), url: url('paypal-transparent-redirect/items/' ~ item.id) },
+        { label: item.name|t('paypal-transparent-redirect'), url: cpUrl('paypal-transparent-redirect/items/' ~ item.id) },
     ]) %}
 {% endif %}
 

@@ -111,11 +111,36 @@ class Install extends Migration {
         return $fields;
     }
 
-    /**
-     * Creates the tables needed for the Records used by the plugin
-     *
-     * @return bool
-     */
+    public static function createTokenTable($self) {
+        $tableCreated = false;
+
+        // paypaltransparentredirect_item table
+        $tableSchema = Craft::$app->db->schema->getTableSchema('{{%paypaltransparentredirect_token}}');
+        if ($tableSchema === null) {
+            $self->createTable(
+                '{{%paypaltransparentredirect_token}}',
+                [
+                    'id' => $self->primaryKey(),
+                    'dateCreated' => $self->dateTime()->notNull(),
+                    'dateUpdated' => $self->dateTime()->notNull(),
+                    'uid' => $self->uid(),
+                    // Custom columns in the table
+                    'secureToken' => $self->string(255)->notNull(),
+                    'secureTokenId' => $self->string(255)->notNull(),
+                    'itemId' => $self->integer(),
+                    'lastTransactionId' => $self->integer(),
+                    'userId' => $self->integer(),
+                    'userEmail' => $self->text(),
+                    'userData' => $self->text(),
+                ]
+            );
+
+            $tableCreated = true;
+        }
+
+        return $tableCreated;
+    }
+
     public static function createTrxTable($self) {
         $tableCreated = false;
 
@@ -130,6 +155,7 @@ class Install extends Migration {
                     'dateUpdated' => $self->dateTime()->notNull(),
                     'uid' => $self->uid(),
                     // Custom columns in the table
+                    'isComplete' => $self->boolean()->notNull()->defaultValue(FALSE),
                     'fullResponse' => $self->json(),
                 ], self::getTrxFields($self))
             );
@@ -140,11 +166,6 @@ class Install extends Migration {
         return $tableCreated;
     }
 
-    /**
-     * Creates the tables needed for the Records used by the plugin
-     *
-     * @return bool
-     */
     protected static function createItemsTable($self) {
         $tableCreated = false;
 
@@ -238,5 +259,6 @@ class Install extends Migration {
         $this->dropTableIfExists('{{%paypaltransparentredirect_item}}');
         $this->dropTableIfExists('{{%paypaltransparentredirect_paypaltransparentredirectrecord}}');
         $this->dropTableIfExists('{{%paypaltransparentredirect_trxresponse}}');
+        $this->dropTableIfExists('{{%paypaltransparentredirect_token}}');
     }
 }

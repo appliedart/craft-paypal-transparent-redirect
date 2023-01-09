@@ -11,7 +11,7 @@
 namespace appliedart\paypaltransparentredirect\fields;
 
 use appliedart\paypaltransparentredirect\Plugin;
-use appliedart\paypaltransparentredirect\models\PaypalItemModel;
+use appliedart\paypaltransparentredirect\models\PaypalItem as PaypalItemModel;
 use appliedart\paypaltransparentredirect\assetbundles\paypaltransparentredirectfieldfield\PaypalTransparentRedirectFieldFieldAsset;
 
 use NumberFormatter;

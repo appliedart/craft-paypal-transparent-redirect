@@ -7,7 +7,7 @@ use Exception;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
-use appliedart\paypaltransparentredirect\models\PaypalItemModel;
+use appliedart\paypaltransparentredirect\models\PaypalItem;
 use appliedart\paypaltransparentredirect\records\PaypalItemRecord;
 use appliedart\paypaltransparentredirect\events\PaypalItemEvent;
 use craft\helpers\Json;
@@ -85,7 +85,7 @@ class PaypalItems extends Component {
 
     /**
      * @param $itemId
-     * @return PaypalItemModel|null
+     * @return PaypalItem|null
      */
     public function getItemById($itemId) {
         $result = $this->_getQuery()
@@ -97,7 +97,7 @@ class PaypalItems extends Component {
 
     /**
      * @param $identifier
-     * @return PaypalItemModel|null
+     * @return PaypalItem|null
      */
     public function getItemByIdentifier($identifier) {
         $result = $this->_getQuery()
@@ -108,11 +108,11 @@ class PaypalItems extends Component {
     }
 
     /**
-     * @param PaypalItemModel $model
+     * @param PaypalItem $model
      * @param bool $runValidation
      * @return bool
      */
-    public function saveItem(PaypalItemModel $model, bool $runValidation = true): bool {
+    public function saveItem(PaypalItem $model, bool $runValidation = true): bool {
         $isNewModel = !$model->id;
 
         // Fire a 'beforeSaveItem' event
@@ -244,16 +244,16 @@ class PaypalItems extends Component {
 
     /**
      * @param PaypalItemRecord|null $record
-     * @return PaypalItemModel|null
+     * @return PaypalItem|null
      */
-    private function _createModelFromRecord(PaypalItemRecord $record = null): PaypalItemModel {
+    private function _createModelFromRecord(PaypalItemRecord $record = null): PaypalItem {
         if (!$record) {
             return null;
         }
 
         $attributes = $record->toArray();
 
-        return new PaypalItemModel($attributes);
+        return new PaypalItem($attributes);
     }
 
     /**

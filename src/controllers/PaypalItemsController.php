@@ -4,7 +4,7 @@ namespace appliedart\paypaltransparentredirect\controllers;
 
 use Cake\Utility\Hash;
 use Craft;
-use appliedart\paypaltransparentredirect\models\PaypalItemModel;
+use appliedart\paypaltransparentredirect\models\PaypalItem;
 use appliedart\paypaltransparentredirect\fields\PaypalItem as PaypalItemField;
 use appliedart\paypaltransparentredirect\Plugin;
 use craft\helpers\Json;
@@ -49,7 +49,7 @@ class PaypalItemsController extends Controller {
             if ($itemId) {
                 $variables['item'] = Plugin::$plugin->items->getItemById($itemId);
             } else {
-                $variables['item'] = new PayPalItemModel();
+                $variables['item'] = new PaypalItem();
             }
         } else {
             $variables['item'] = $item;
@@ -136,7 +136,7 @@ class PaypalItemsController extends Controller {
     }
 
     /**
-     * @return PaypalItemModel
+     * @return PaypalItem
      * @throws \yii\web\BadRequestHttpException
      */
     protected function _getModelFromPost() {
@@ -147,7 +147,7 @@ class PaypalItemsController extends Controller {
         if ($request->getBodyParam('itemId')) {
             $item = Plugin::$plugin->items->getItemById($request->getBodyParam('itemId'));
         } else {
-            $item = new PaypalItemModel();
+            $item = new PaypalItem();
         }
 
         $item->name = $request->getBodyParam('name', $item->name);

@@ -240,6 +240,9 @@ class TransactionResponses extends Component {
 
         $fieldNames = self::getResponseFieldNames();
 
+        $record->isComplete = $model->isComplete;
+        $record->fullResponse = $model->fullResponse;
+
         foreach ($fieldNames as $fieldName) {
             $record->{$fieldName} = trim($model->{$fieldName});
         }
@@ -286,6 +289,7 @@ class TransactionResponses extends Component {
             'dateCreated',
             'dateUpdated',
             'uid',
+            'isComplete',
             'fullResponse',
         ], self::getResponseFieldNames());
 
